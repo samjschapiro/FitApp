@@ -16,6 +16,7 @@ struct AutoSelectTextField: UIViewRepresentable {
     func makeUIView(context: Context) -> UITextField {
         let textField = UITextField()
         textField.textAlignment = .center
+        textField.font = UIFont.systemFont(ofSize: 18, weight: .medium)
         textField.layer.cornerRadius = 5
         textField.keyboardType = keyboardType
         textField.delegate = context.coordinator

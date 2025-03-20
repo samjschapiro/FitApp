@@ -13,46 +13,53 @@ struct WorkoutExercise: Identifiable {
     var name: String
 }
 
+struct SetItem: Identifiable {
+    let id: UUID = UUID()
+    var type: String
+    var first: String
+    var second: String
+    var completed: Bool
+}
 
 struct WorkoutExerciseView: View {
     var exercise: WorkoutExercise
     
-    @State private var thingy: String = "1"
-    @State private var numSets: Int = 1
+    @State private var prevSets = [
+        "45 lb x 12 (W)",
+        "135 lb x 10",
+        "155 lb x 6 (F)"
+    ]
     
-    @State private var setValues = ["W", "", "F", "", "", "", "", "", "", "",
-                                   "", "", "", "", "", "", "", "", "", ""]
-    @State private var prevValues = ["25 lb x 12 (W)", "125 lb x 8", "125 lb x 10 (F)", "", "", "", "", "", "", "",
-                                     "", "", "", "", "", "", "", "", "", ""]
-    @State private var weightValues = ["25", "125", "125", "", "", "", "", "", "", "",
-                                       "", "", "", "", "", "", "", "", "", ""]
-    @State private var repValues = ["10", "8", "10", "", "", "", "", "", "", "",
-                                    "", "", "", "", "", "", "", "", "", ""]
-    @FocusState private var focusedField: Int?
-    
-    @State private var completedSets: Set<Int> = []
+    @State private var sets: [SetItem] = [
+        SetItem(type: "", first: "", second: "", completed: false)
+//        SetItem(type: "", first: "", second: "", completed: false),
+//        SetItem(type: "", first: "", second: "", completed: false),
+//        SetItem(type: "", first: "", second: "", completed: false)
+    ]
 
     var body: some View {
         VStack {
             HStack(alignment: .top) {
                 Text(exercise.name)
                     .frame(maxWidth: .infinity, alignment: .leading)
-//                    .font(.headline)
                     .fontWeight(.bold)
                     .foregroundColor(Color.blue)
-                    .padding(.leading, 3)
+                    .padding(.leading, 5)
             }
             .frame(height: 25)
             
             GeometryReader { geometry in
                 let totalWidth = geometry.size.width
+                
                 VStack {
                     HStack {
+                        Spacer()
+                            .frame(width: totalWidth * 0.01)
                         Text("Set")
-                            .frame(width: totalWidth * 0.09, alignment: .center)
+                            .frame(width: totalWidth * 0.08, alignment: .center)
                             .fontWeight(.semibold)
                         Text("Previous")
-                            .frame(width: totalWidth * 0.4, alignment: .center)
+                            .frame(width: totalWidth * 0.39, alignment: .center)
                             .fontWeight(.semibold)
                         Text("lbs")
                             .frame(width: totalWidth * 0.17, alignment: .center)
@@ -63,80 +70,107 @@ struct WorkoutExerciseView: View {
                         Image(systemName: "checkmark")
                             .frame(width: totalWidth * 0.08, alignment: .center)
                             .fontWeight(.semibold)
+                        Spacer()
+                            .frame(width: totalWidth * 0.01)
                     }
                     
                     let completedGreen = Color.green.opacity(0.2)
-                    ForEach(1...numSets, id: \.self) { setNumber in
-                        let isCompleted = completedSets.contains(setNumber)
-                        
-                        HStack {
-                            Text("\(setNumber)")
-                                .frame(width: totalWidth * 0.09, alignment: .center)
-                            
-//                            if weightValues[setNumber - 1].isEmpty || repValues[setNumber - 1].isEmpty {
-//                                RoundedRectangle(cornerRadius: 2)
-//                                    .frame(width: totalWidth * 0.1, height: 3)
-//                                    .foregroundColor(.gray.opacity(0.6))
-//                                    .padding(.leading, totalWidth * 0.15)
-//                                    .padding(.trailing, totalWidth * 0.15)
-//                            } else {
-//                                Text("\(weightValues[setNumber - 1]) lb x \(repValues[setNumber - 1])\(setValues[setNumber - 1].isEmpty ? "" : " (\(setValues[setNumber - 1]))")")
-//                                    .frame(width: totalWidth * 0.4, alignment: .center)
-//                            }
-                            Text(prevValues[setNumber - 1])
-                                .frame(width: totalWidth * 0.4, alignment: .center)
-                            
-                            AutoSelectTextField(
-                                text: $weightValues[setNumber - 1],
-                                keyboardType: .numberPad,
-                                backgroundColor: isCompleted ? completedGreen : Color.gray.opacity(0.2)
-                            )
-                            .frame(width: totalWidth * 0.17, height: 25, alignment: .center)
-                            
-                            AutoSelectTextField(
-                                text: $repValues[setNumber - 1],
-                                keyboardType: .numberPad,
-                                backgroundColor: isCompleted ? completedGreen : Color.gray.opacity(0.2)
-                            )
-                            .frame(width: totalWidth * 0.17, height: 25, alignment: .center)
-                            
-                            Button(action: {
-                                if completedSets.contains(setNumber) {
-                                    completedSets.remove(setNumber)
-                                } else {
-                                    completedSets.insert(setNumber)
-                                    triggerHapticFeedbackLight()
-                                }
-                            }) {
+
+                    List {
+                        ForEach(sets.indices, id: \.self) { index in
+                            HStack {
+                                Spacer().frame(width: totalWidth * 0.01)
+                                
+                                // Set Number
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 4)
-                                        .fill(completedSets.contains(setNumber) ? Color.green : Color.gray.opacity(0.2))
+                                        .fill(sets[index].completed ? Color.green.opacity(0) : Color.gray.opacity(0.2))
                                         .frame(width: 26, height: 21)
-
-                                    Image(systemName: "checkmark")
-                                        .resizable()
-                                        .frame(width: 12, height: 12)
-                                        .foregroundColor(completedSets.contains(setNumber) ? .white : .black)
+                                    
+                                    Text("\(index + 1)")
+                                        .foregroundColor(.black)
+                                        .fontWeight(.medium)
                                 }
+                                .frame(width: totalWidth * 0.08, alignment: .center)
+                                
+                                // Previous Text
+                                if index < prevSets.count {
+                                    Text(prevSets[index])
+                                        .frame(width: totalWidth * 0.39, alignment: .center)
+                                        .foregroundColor(Color.gray)
+                                        .fontWeight(.medium)
+                                } else {
+                                    Spacer().frame(width: totalWidth * 0.16)
+                                    Rectangle()
+                                        .fill(Color.gray.opacity(0.3)) // Light gray bar
+                                        .frame(width: totalWidth * 0.12, height: 4) // Adjust size to look like a placeholder bar
+                                        .cornerRadius(4)
+                                    Spacer().frame(width: totalWidth * 0.155)
+                                }
+                                
+                                // Weight TextField (Not interactive outside of input)
+                                AutoSelectTextField(
+                                    text: $sets[index].first,
+                                    keyboardType: .numberPad,
+                                    backgroundColor: sets[index].completed ? Color.green.opacity(0) : Color.gray.opacity(0.2)
+                                )
+                                .frame(width: totalWidth * 0.17, height: 25, alignment: .center)
+                                .fontWeight(.medium)
+                                
+                                // Reps TextField
+                                AutoSelectTextField(
+                                    text: $sets[index].second,
+                                    keyboardType: .numberPad,
+                                    backgroundColor: sets[index].completed ? Color.green.opacity(0) : Color.gray.opacity(0.2)
+                                )
+                                .frame(width: totalWidth * 0.17, height: 25, alignment: .center)
+                                .fontWeight(.bold)
+                                
+                                // ✅ Checkmark Button (Only this triggers the state change)
+                                Button(action: {
+                                    if sets[index].first.isEmpty || sets[index].second.isEmpty {
+                                        triggerHapticFeedbackMedium()
+                                    } else {
+                                        sets[index].completed.toggle()
+                                        if sets[index].completed {
+                                            triggerHapticFeedbackLight()
+                                        }
+                                    }
+                                }) {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 4)
+                                            .fill(sets[index].completed ? Color.green : Color.gray.opacity(0.2))
+                                            .frame(width: 26, height: 21)
+                                        
+                                        Image(systemName: "checkmark")
+                                            .resizable()
+                                            .frame(width: 12, height: 12)
+                                            .foregroundColor(sets[index].completed ? .white : .black)
+                                    }
+                                }
+                                .frame(width: totalWidth * 0.08, alignment: .center)
+                                .buttonStyle(.plain)
+                                
+                                Spacer().frame(width: totalWidth * 0.01)
                             }
-                            .frame(width: totalWidth * 0.08, alignment: .center)
-//                            .padding(.trailing, 5)
+                            .frame(height: 35)
+                            .background(sets[index].completed ? completedGreen : Color.clear) // ✅ Row turns green
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .contentShape(Rectangle()) // Prevents row from acting as a button
                         }
-                        .frame(width: .infinity, height: 42)
-                        .background(isCompleted ? completedGreen : Color.clear)
-//                        .fixedSize(horizontal: false, vertical: true)
-//                        .padding(.top, 1)
-//                        .padding(.bottom, 1)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .onDelete(perform: deleteAt) // **Enable Swipe-to-Delete**
                     }
+                    .listStyle(.plain) // **Keeps the same styling**
+                    .frame(height: 100 + CGFloat(sets.count) * 40)
                 }
             }
-            .frame(minHeight: CGFloat(25 + numSets * 50))
-//            .fixedSize(horizontal: false, vertical: true)
+            .frame(minHeight: CGFloat(30 + sets.count * 44))  // 25 + sets.count * 50
             
             Button(action: {
-                numSets += 1
-                print(numSets)
+                withAnimation(.easeInOut(duration: 0.3)) {
+                    let newSet = SetItem(type: "", first: "", second: "", completed: false)
+                    sets.append(newSet)
+                }
             }) {
                 Text("+ Add Set")
                     .frame(maxWidth: .infinity)
@@ -147,13 +181,11 @@ struct WorkoutExerciseView: View {
                     .cornerRadius(8)
             }
         }
-//        .frame(width: .infinity)
-//        .padding(.top, 5)
-//        .padding(.bottom, 5)
-//        .padding(.leading, 5)
-//        .padding(.trailing, 5)
         .frame(maxWidth: .infinity, alignment: .leading)
-//        .background(Color(.secondarySystemBackground))
         .cornerRadius(10)
+    }
+    
+    func deleteAt(offsets: IndexSet) {
+        sets.remove(atOffsets: offsets)
     }
 }

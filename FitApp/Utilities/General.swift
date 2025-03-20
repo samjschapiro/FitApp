@@ -11,3 +11,9 @@ func triggerHapticFeedbackLight() {
     let generator = UIImpactFeedbackGenerator(style: .light) // ✅ Options: .light, .medium, .heavy
     generator.impactOccurred()
 }
+
+
+func triggerHapticFeedbackMedium() {
+    let generator = UIImpactFeedbackGenerator(style: .medium) // ✅ Options: .light, .medium, .heavy
+    generator.impactOccurred()
+}
