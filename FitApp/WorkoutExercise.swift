@@ -102,8 +102,8 @@ struct WorkoutExerciseView: View {
                                 } else {
                                     Spacer().frame(width: totalWidth * 0.16)
                                     Rectangle()
-                                        .fill(Color.gray.opacity(0.3)) // Light gray bar
-                                        .frame(width: totalWidth * 0.12, height: 4) // Adjust size to look like a placeholder bar
+                                        .fill(Color.gray.opacity(0.3))
+                                        .frame(width: totalWidth * 0.12, height: 4)
                                         .cornerRadius(4)
                                     Spacer().frame(width: totalWidth * 0.155)
                                 }
@@ -126,7 +126,7 @@ struct WorkoutExerciseView: View {
                                 .frame(width: totalWidth * 0.17, height: 25, alignment: .center)
                                 .fontWeight(.bold)
                                 
-                                // ✅ Checkmark Button (Only this triggers the state change)
+                                // Checkmark Button (Only this triggers the state change)
                                 Button(action: {
                                     if sets[index].first.isEmpty || sets[index].second.isEmpty {
                                         triggerHapticFeedbackMedium()
@@ -154,17 +154,17 @@ struct WorkoutExerciseView: View {
                                 Spacer().frame(width: totalWidth * 0.01)
                             }
                             .frame(height: 35)
-                            .background(sets[index].completed ? completedGreen : Color.clear) // ✅ Row turns green
+                            .background(sets[index].completed ? completedGreen : Color.clear)
                             .clipShape(RoundedRectangle(cornerRadius: 8))
-                            .contentShape(Rectangle()) // Prevents row from acting as a button
+                            .contentShape(Rectangle())
                         }
-                        .onDelete(perform: deleteAt) // **Enable Swipe-to-Delete**
+                        .onDelete(perform: deleteAt)
                     }
-                    .listStyle(.plain) // **Keeps the same styling**
+                    .listStyle(.plain)
                     .frame(height: 100 + CGFloat(sets.count) * 40)
                 }
             }
-            .frame(minHeight: CGFloat(30 + sets.count * 44))  // 25 + sets.count * 50
+            .frame(minHeight: CGFloat(30 + sets.count * 44))
             
             Button(action: {
                 withAnimation(.easeInOut(duration: 0.3)) {

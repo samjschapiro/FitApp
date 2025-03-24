@@ -174,6 +174,15 @@ struct ContentView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(UIColor.systemBackground))
+//        .fullScreenCover(isPresented: $workoutStarted) {
+//            VStack {
+//                if workoutExpanded {
+//                    NewWorkout(isPresented: $workoutStarted)
+//                }
+//            }
+////            .interactiveDismissDisabled()
+////            .presentationBackgroundInteraction(.enabled)
+//        }
         .sheet(isPresented: $workoutStarted) {
             VStack {
                 if workoutExpanded {
