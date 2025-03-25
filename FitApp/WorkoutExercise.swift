@@ -24,6 +24,9 @@ struct SetItem: Identifiable {
 struct WorkoutExerciseView: View {
     var exercise: WorkoutExercise
     
+    @State private var activeBinding: Binding<String>? = nil
+    @State private var showKeypad = false
+    
     @State private var isEditing = false
     
     @State private var prevSets = [
@@ -113,22 +116,31 @@ struct WorkoutExerciseView: View {
                                 }
                                 
                                 // Weight TextField (Not interactive outside of input)
+
+                                
                                 AutoSelectTextField(
                                     text: $sets[index].first,
                                     keyboardType: .numberPad,
                                     backgroundColor: sets[index].completed ? Color.green.opacity(0) : Color.gray.opacity(0.2)
+//                                    onEditingBegan: {
+//                                        activeBinding = $sets[index].first
+//                                        showKeypad = true
+//                                    }
                                 )
                                 .frame(width: totalWidth * 0.17, height: 25, alignment: .center)
-                                .fontWeight(.medium)
-                                
-                                // Reps TextField
+                                .cornerRadius(6)
+
                                 AutoSelectTextField(
                                     text: $sets[index].second,
                                     keyboardType: .numberPad,
                                     backgroundColor: sets[index].completed ? Color.green.opacity(0) : Color.gray.opacity(0.2)
+//                                    onEditingBegan: {
+//                                        activeBinding = $sets[index].second
+//                                        showKeypad = true
+//                                    }
                                 )
                                 .frame(width: totalWidth * 0.17, height: 25, alignment: .center)
-                                .fontWeight(.bold)
+                                .cornerRadius(6)
                                 
                                 // Checkmark Button (Only this triggers the state change)
                                 Button(action: {
@@ -163,6 +175,7 @@ struct WorkoutExerciseView: View {
                             .contentShape(Rectangle())
                         }
                         .onDelete(perform: deleteAt)
+                        .listRowSeparator(.hidden)
                     }
                     .listStyle(.plain)
                     .frame(height: 100 + CGFloat(sets.count) * 40)
@@ -188,6 +201,37 @@ struct WorkoutExerciseView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .cornerRadius(10)
+//        .sheet(isPresented: $showKeypad, onDismiss: {
+//            AutoSelectTextField.Coordinator.currentFirstResponder?.resignFirstResponder()
+//        }) {
+//            Numpad(
+//                onKeyPress: { char in
+//                    activeBinding?.wrappedValue.append(char)
+//                },
+//                onDelete: {
+//                    if let binding = activeBinding {
+//                        binding.wrappedValue = String(binding.wrappedValue.dropLast())
+//                    }
+//                },
+//                onDone: {
+//                    showKeypad = false
+//                }
+//            )
+//            .presentationDetents([.fraction(0.35)])
+//            .presentationBackgroundInteraction(.enabled)
+//        }
+        
+        .sheet(isPresented: $showKeypad) {
+            Numpad(
+                focusedField: "active",
+                textFields: activeBinding.map { ["active": $0] } ?? [:],
+                onDone: {
+                    showKeypad = false
+                }
+            )
+            .presentationDetents([.fraction(0.35)])
+            .presentationBackgroundInteraction(.enabled)
+        }
     }
     
     func deleteAt(offsets: IndexSet) {
