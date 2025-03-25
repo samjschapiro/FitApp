@@ -24,6 +24,8 @@ struct SetItem: Identifiable {
 struct WorkoutExerciseView: View {
     var exercise: WorkoutExercise
     
+    @State private var isEditing = false
+    
     @State private var prevSets = [
         "45 lb x 12 (W)",
         "135 lb x 10",
@@ -49,7 +51,9 @@ struct WorkoutExerciseView: View {
             .frame(height: 25)
             
             GeometryReader { geometry in
+//            VStack {
                 let totalWidth = geometry.size.width
+//                let totalWidth = UIScreen.main.bounds.width * 0.92
                 
                 VStack {
                     HStack {
@@ -162,6 +166,7 @@ struct WorkoutExerciseView: View {
                     }
                     .listStyle(.plain)
                     .frame(height: 100 + CGFloat(sets.count) * 40)
+                    .environment(\.editMode, .constant(isEditing ? .active : .inactive))
                 }
             }
             .frame(minHeight: CGFloat(30 + sets.count * 44))

@@ -190,8 +190,11 @@ struct ContentView: View {
                 .background(Color(UIColor.systemBackground))
             }
             
-            
             if showSheet {
+                Color.black
+                    .opacity(Double(1 - (sheetOffset / closedPosition)) * 0.4)
+                    .ignoresSafeArea()
+                    .animation(.easeInOut(duration: 0.3), value: sheetOffset)
                 DraggableSheet(sheetOffset: $sheetOffset,
                                lastOffset: $lastOffset,
                                fullPosition: fullPosition,
@@ -199,6 +202,7 @@ struct ContentView: View {
                                showSheet: $showSheet,
                                workoutStarted: $workoutStarted)
                     .transition(.move(edge: .bottom))
+                    .ignoresSafeArea(edges: .bottom)
             }
         }
     }

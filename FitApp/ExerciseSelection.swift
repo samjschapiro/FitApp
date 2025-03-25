@@ -7,63 +7,103 @@
 
 import SwiftUI
 
-
 struct ExercisePopup: View {
     let exercises = [
         "Bench Press (Barbell)",
+        "Cable Crossover",
         "Squat (Barbell)",
         "Bicep Curl (Dumbbell)",
         "Triceps Pushdown (Rope)",
-        "Plank"
+        "Plank",
+        "Running",
+        "Stretching"
     ]
     
     @State private var selectedExercise: String? = nil
+    @State private var searchText: String = ""
     @Binding var isPresented: Bool
-    
     var onAdd: (String) -> Void
-    
+
+    var filteredExercises: [String] {
+        searchText.isEmpty ? exercises : exercises.filter {
+            $0.localizedCaseInsensitiveContains(searchText)
+        }
+    }
+
     var body: some View {
         ZStack {
-            Color.black.opacity(0.4)
+            Color.black.opacity(0.2)
                 .edgesIgnoringSafeArea(.all)
                 .onTapGesture {
                     isPresented = false
                 }
-            
-            VStack(spacing: 20) {
-                Text("Select an Exercise")
-                    .font(.headline)
-                    .padding()
-                
-                ScrollView {
-                    VStack(spacing: 10) {
-                        ForEach(exercises, id: \.self) { exercise in
-                            HStack {
-                                Text(exercise)
-                                    .font(.body)
-                                    .padding()
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                
-                                if selectedExercise == exercise {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .foregroundColor(.blue)
-                                }
-                            }
-                            .background(RoundedRectangle(cornerRadius: 10)
-                                            .stroke(selectedExercise == exercise ? Color.blue : Color.gray, lineWidth: 2))
-                            .onTapGesture {
-                                selectedExercise = exercise
-                            }
+
+            VStack(spacing: 10) {
+                HStack {
+                    Button(action: {
+                        isPresented = false
+                    }) {
+                        Image(systemName: "xmark")
+                            .foregroundColor(.primary)
+                            .padding(.top, 5)
+                            .padding(.bottom, 5)
+                            .padding(.leading, 8)
+                            .padding(.trailing, 8)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.gray.opacity(0.3))
+                            )
+                    }
+
+                    Spacer()
+                }
+                .padding(.leading, 15)
+                .padding(.trailing, 10)
+
+                TextField("Search exercises...", text: $searchText)
+                    .padding(10)
+                    .background(Color(.systemGray5))
+                    .cornerRadius(8)
+                    .padding(.horizontal)
+
+                // Use List for better performance and appearance
+                List(filteredExercises, id: \.self) { exercise in
+                    HStack {
+                        Text(exercise)
+                            .foregroundColor(.primary)
+                            .fontWeight(.medium)
+
+                        Spacer()
+
+                        if selectedExercise == exercise {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundColor(.blue)
                         }
                     }
-                    .padding()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .padding(.horizontal, 5)
+                    .background(
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(selectedExercise == exercise ? Color.blue.opacity(0.1) : Color.clear)
+                    )
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        withAnimation {
+                            selectedExercise = (selectedExercise == exercise) ? nil : exercise
+                        }
+                    }
+//                    .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                    .alignmentGuide(.listRowSeparatorLeading) { d in d[.leading] + 1 }
+                    .alignmentGuide(.listRowSeparatorTrailing) { d in d[.trailing] - 1 }
                 }
-                
+                .listStyle(PlainListStyle()) // Removes default section padding
+//                Spacer().frame(width: 5)
+
                 HStack {
                     Spacer()
                     Button(action: {
                         if let selected = selectedExercise {
-                            onAdd(selected)
+                            onAdd(selected) // Adds exercise to list
                             isPresented = false
                         }
                     }) {
@@ -71,29 +111,37 @@ struct ExercisePopup: View {
                             Image(systemName: "plus.circle")
                             Text("Add")
                         }
-                        .padding()
-                        .background(selectedExercise != nil ? Color.blue : Color.gray)
-                        .foregroundColor(.white)
+                        .padding(.top, 10)
+                        .padding(.bottom, 10)
+                        .padding(.leading, 15)
+                        .padding(.trailing, 15)
+                        .background(selectedExercise != nil ? Color.blue : Color.gray.opacity(0.3))
+                        .foregroundColor(selectedExercise != nil ? .white : .black)
                         .cornerRadius(10)
                     }
                     .disabled(selectedExercise == nil)
                 }
-                .padding()
+                .padding([.horizontal, .bottom])
             }
-            .padding()
-            .frame(width: UIScreen.main.bounds.width * 0.95, height: UIScreen.main.bounds.height * 0.8)
+            .padding(.top)
+            .frame(width: UIScreen.main.bounds.width * 0.92, height: UIScreen.main.bounds.height * 0.87)
             .background(Color.white)
             .cornerRadius(15)
             .shadow(radius: 5)
+            .offset(y: -20)
         }
     }
 }
 
-struct ExercisePopup_Previews: PreviewProvider {
-    static var previews: some View {
-        ExercisePopup(isPresented: .constant(true), onAdd: { _ in })
-    }
-}
+//struct ExercisePopup_Previews: PreviewProvider {
+//    static var previews: some View {
+//        ExercisePopup(isPresented: .constant(true), onAdd: { _ in })
+//    }
+//}
+
+
+
+
 
 
 //import SwiftUI

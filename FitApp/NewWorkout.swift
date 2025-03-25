@@ -19,7 +19,7 @@ struct NewWorkout: View {
     
     @State private var exercises: [WorkoutExercise] = []
     
-    @State private var selectionPopupPresented = false
+    @Binding var selectionPopupPresented: Bool
     
     var body: some View {
         ZStack {
@@ -45,7 +45,7 @@ struct NewWorkout: View {
                         }
                     }
                 }
-                .padding(.top, 15)
+                .padding(.top, 5)
                 .padding(.leading, 15)
                 .padding(.trailing, 15)
                 .onAppear {
@@ -136,9 +136,13 @@ struct NewWorkout: View {
                 ExercisePopup(isPresented: $selectionPopupPresented) { selectedExercise in
                     exercises.append(WorkoutExercise(name: selectedExercise))
                 }
+//                .frame(width: UIScreen.main.bounds.width * 0.9, height: UIScreen.main.bounds.height * 0.8)
+//                .cornerRadius(15)
+//                .shadow(radius: 5)
                 .zIndex(1) // Ensure the popup appears above everything
             }
         }
+        .ignoresSafeArea()
     }
     
     func saveWorkout() {
